@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Voice Recognition Lengkap</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        transition: 0.3s;
+        background: var(--bg);
+        color: var(--text);
+      }
+
+      :root {
+        --bg: #f0f0f0;
+        --text: #222;
+        --card: rgba(255, 255, 255, 0.6);
+      }
+
+      .dark {
+        --bg: #1a1a1a;
+        --text: #f1f1f1;
+        --card: rgba(40, 40, 40, 0.7);
+      }
+
+      .container {
+        background: var(--card);
+        backdrop-filter: blur(10px);
+        padding: 30px;
+        border-radius: 15px;
+        width: 350px;
+        text-align: center;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+      }
+
+      button {
+        width: 100%;
+        padding: 12px;
+        margin-top: 10px;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        font-size: 16px;
+        font-weight: bold;
+        transition: 0.2s;
+      }
+
+      #startBtn {
+        background: #2575fc;
+        color: white;
+      }
+      #stopBtn {
+        background: #ff4d4d;
+        color: white;
+      }
+      #themeBtn {
+        background: #6a11cb;
+        color: white;
+      }
+      #saveBtn {
+        background: #08c97c;
+        color: white;
+      }
+
+      #outputBox {
+        background: rgba(0, 0, 0, 0.1);
+        padding: 15px;
+        border-radius: 10px;
+        min-height: 70px;
+        margin-top: 20px;
+        font-size: 18px;
+      }
+
+      .wave {
+        height: 50px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 5px;
+        margin-top: 15px;
+      }
+
+      .bar {
+        width: 5px;
+        height: 15px;
+        background: #2575fc;
+        animation: wave 0.8s infinite ease-in-out;
+      }
+
+      .bar:nth-child(2) {
+        animation-delay: 0.1s;
+      }
+      .bar:nth-child(3) {
+        animation-delay: 0.2s;
+      }
+      .bar:nth-child(4) {
+        animation-delay: 0.3s;
+      }
+      .bar:nth-child(5) {
+        animation-delay: 0.4s;
+      }
+
+      @keyframes wave {
+        0%,
+        100% {
+          height: 15px;
+        }
+        50% {
+          height: 40px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h2>Voice Recognition</h2>
+
+      <button id="startBtn">🎤 Mulai Rekam</button>
+      <button id="stopBtn">⛔ Stop</button>
+      <button id="themeBtn">🌗 Ganti Tema</button>
+
+      <div class="wave" id="waveAnim" style="display: none">
+        <div class="bar"></div>
+        <div class="bar"></div>
+        <div class="bar"></div>
+        <div class="bar"></div>
+        <div class="bar"></div>
+      </div>
+
+      <div id="outputBox">Ucapkan sesuatu...</div>
+
+      <button id="saveBtn">💾 Simpan Teks</button>
+    </div>
+
+    <script>
+      const SpeechRecognition =
+        window.SpeechRecognition || window.webkitSpeechRecognition;
+
+      if (!SpeechRecognition) {
+        alert("Browser Anda tidak mendukung Speech Recognition!");
+      }
+
+      const recognition = new SpeechRecognition();
+      recognition.lang = "id-ID";
+      recognition.interimResults = false;
+
+      const outputBox = document.getElementById("outputBox");
+      const waveAnim = document.getElementById("waveAnim");
+
+      document.getElementById("startBtn").onclick = () => {
+        recognition.start();
+        waveAnim.style.display = "flex";
+        outputBox.innerText = "Mendengarkan...";
+      };
+
+      document.getElementById("stopBtn").onclick = () => {
+        recognition.stop();
+        waveAnim.style.display = "none";
+        outputBox.innerText = "Dihentikan.";
+      };
+
+      recognition.onresult = (event) => {
+        const text = event.results[0][0].transcript;
+        outputBox.innerText = text;
+        waveAnim.style.display = "none";
+
+        if (text.toLowerCase().includes("ganti warna")) {
+          document.body.style.background =
+            "#" + Math.floor(Math.random() * 16777215).toString(16);
+        }
+      };
+
+      recognition.onerror = () => {
+        outputBox.innerText = "Terjadi error";
+        waveAnim.style.display = "none";
+      };
+
+      let darkMode = false;
+      document.getElementById("themeBtn").onclick = () => {
+        darkMode = !darkMode;
+        document.body.classList.toggle("dark", darkMode);
+      };
+
+      document.getElementById("saveBtn").onclick = () => {
+        const text = outputBox.innerText;
+        const file = new Blob([text], { type: "text/plain" });
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(file);
+        a.download = "hasil_voice.txt";
+        a.click();
+      };
+    </script>
+  </body>
+</html>
